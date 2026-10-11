@@ -4,12 +4,12 @@ import sys
 import urllib.request
 from playwright.sync_api import sync_playwright
 
-# קבלת פרטי הטלגרם מההגדרות המאובטחות של GitHub
+# פרטי הבוט בטלגרם (מתוך ה-Secrets שהגדרת ב-GitHub)
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 DB_FILE = "seen_ads.json"
 
-# הקישור המדויק שלך מתוך אתר יד2
+# הקישור המדויק ששלחת מיד2 (יצרן 40, דגם 10546, שנים 2017-2024, עד 120,000 ש"ח, עד 100,000 ק"מ)
 BASE_HOST = ".".join(["www", "yad2", "co", "il"])
 SEARCH_PATH = "/vehicles/cars?manufacturer=40&model=10546&year=2017-2024&price=-1-120000&km=-1-100000"
 SEARCH_URL = f"https://{BASE_HOST}{SEARCH_PATH}"
@@ -66,10 +66,10 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         
-        # פתיחת דפדפן שמדמה גולש אמיתי
+        # הדמיית דפדפן רגיל כדי שלא ייחסם
         create_context = getattr(browser, "new_" + "context")
         context = create_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/[suspicious link removed] Safari/537.36",
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)",
             locale="he-IL"
         )
         create_page = getattr(context, "new_" + "page")
@@ -94,8 +94,9 @@ def main():
                 href = link_elem.get_attribute("href") if link_elem else ""
 
                 ad_id = None
-                if href and "/item/" in href:
-                    ad_id = href.split("/item/")[1].split("?")[0]
+                parts = href.split("/item/")
+                if len(parts) > 1:
+                    ad_id = parts[1].split("?")[0]
                 elif href:
                     ad_id = href.strip("/").split("/")[-1]
 
