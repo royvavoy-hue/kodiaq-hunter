@@ -2,9 +2,7 @@ name: Yad2 Kodiaq Hunter
 
 on:
   schedule:
-    # מריץ את הסקריפט כל 20 דקות
     - cron: '*/20 * * * *'
-  # מאפשר הרצה ידנית בלחיצת כפתור
   workflow_dispatch:
 
 permissions:
@@ -34,12 +32,15 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          python [suspicious link removed]
+          python $(find . -maxdepth 1 -name "*py" | head -n 1)
 
       - name: Commit and push changes
+        env:
+          GIT_AUTHOR_NAME: "GitHub Actions Bot"
+          GIT_AUTHOR_EMAIL: "actions@github"
+          GIT_COMMITTER_NAME: "GitHub Actions Bot"
+          GIT_COMMITTER_EMAIL: "actions@github"
         run: |
-          git config --local [suspicious link removed] "action@github.com"
-          git config --local [suspicious link removed] "GitHub Action Bot"
-          git add seen_ads.json
-          git diff-index --quiet HEAD || git commit -m "Auto-update seen ads [skip ci]"
-          git push
+          git add seen_ads.json || true
+          git commit -m "Auto-update seen ads [skip ci]" || true
+          git push || true
